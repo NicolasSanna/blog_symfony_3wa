@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bienvenue !{% endblock %}
+
+{% block body %}
+
+<div class="row">
+
+    {% for article in articles %}
+
+    <div class="col-sm-6">
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{article.title}}</h5>
+            <p class="card-text">{{article.description}}</p>
+            <p>Créé le : {{article.createdAt|date("m/d/Y")}}</p>
+            <a href="{{path('app_article_show', {'id': article.id}) }}" class="btn btn-primary">Lire</a>
+        </div>
+        </div>
+    </div>
+
+    {% endfor %}
+    
+</div>
+
+{% endblock %}

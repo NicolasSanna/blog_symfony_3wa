@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Article{% endblock %}
+
+{% block body %}
+    <h1 class="text-center">{{article.title}}</h1>
+    <div class="text-center">
+        <img class="img-fluid img-thumbnail" src="{{  asset('image_directory/' ~ article.image ~ '')}}">
+    </div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ article.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ article.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ article.description }}</td>
+            </tr>
+            <tr>
+                <th>Créé le</th>
+                <td>{{ article.createdAt ? article.createdAt|date('d/m/Y') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>{{ article.content }}</p>
+
+    <a href="{{ path('app_article_public_index') }}">Revenir à la liste</a>
+
+{% endblock %}
