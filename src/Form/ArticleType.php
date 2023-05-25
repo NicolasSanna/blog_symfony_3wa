@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints\File;
 class ArticleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -20,6 +21,7 @@ class ArticleType extends AbstractType
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Titre',
+                'required' => true,
                 'attr' => ['class' => 'form-control', 'maxlength' => 255],
                 'constraints' => [
                     new NotBlank([
@@ -36,6 +38,7 @@ class ArticleType extends AbstractType
             ->add('description', TextType::class, [
                 'label' => 'Description',
                 'attr' => ['class' => 'form-control', 'maxlength' => 255],
+                'required' => true,
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Le champ ne doit pas être vide',
@@ -49,20 +52,33 @@ class ArticleType extends AbstractType
                 ],
             ])
             ->add('content', TextareaType::class, [
-                'attr' => ['class' => 'form-control']
+                'required' => true,
+                'attr' => ['class' => 'form-control'],
+                'label' => 'Contenu'
             ])
             ->add('image', FileType::class, [
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '300k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                        ],
+                        'mimeTypesMessage' => 'Le site accepte uniquement les fichiers PNG et JPG',
+                    ])
+                ],
                 'label' => 'Image',
-                'required' => false,
-                'attr' => ['accept' => 'image/*', 'class' => 'form-control'],
-                'data_class' => null
+                'attr' => ['class' => 'form-control'],
+                'data_class' => null,
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'multiple' => true,
                 'expanded' => true,
                 'choice_label' => 'label',
-                'label' => 'Catégorie'
+                'label' => 'Catégorie',
+                
             ])
         ;
     }

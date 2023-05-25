@@ -11,6 +11,6 @@ require('bootstrap');
 
 import './styles/app.css'
 
-$(document).ready(function() {
+$(document).ready(() => {
     $('[data-toggle="popover"]').popover();
 });

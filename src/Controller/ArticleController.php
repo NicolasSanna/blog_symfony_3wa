@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comment;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use App\Services\RegisterImage;
@@ -12,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use \DateTimeImmutable;
 use Symfony\Component\Filesystem\Filesystem;
+use App\Form\CommentType;
+use App\Repository\CommentRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/article')]
 class ArticleController extends AbstractController
@@ -20,7 +24,7 @@ class ArticleController extends AbstractController
     public function index(ArticleRepository $articleRepository): Response
     {
         return $this->render('article/index.html.twig', [
-            'articles' => $articleRepository->findBy(['author' => $this->getUser()]),
+            'articles' => $articleRepository->findByAuthorOrderByTitle($this->getUser()),
         ]);
     }
 
@@ -52,19 +56,33 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_article_show', methods: ['GET'])]
-    public function show(Article $article): Response
+    #[Route('/{id}', name: 'app_article_show', methods: ['GET', 'POST'])]
+    public function show(Article $article, Request $request, CommentRepository $commentRepository): Response
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setArticle($article);
+            $comment->setCreatedAt(new DateTimeImmutable());
+            $comment->setAuthor($this->getUser());
+
+            $commentRepository->save($comment, true);
+        }
+
         return $this->render('article/show.html.twig', [
             'article' => $article,
+            'form' => $form
         ]);
     }
 
     #[Route('/admin/{id}/edit', name: 'app_article_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Article $article, ArticleRepository $articleRepository, RegisterImage $registerImage, Filesystem $filesystem): Response
     {
-        $checkArticle = $articleRepository->findBy(['author' => $this->getUser()]);
-
+        $checkArticle = $articleRepository->findOneBy(['author' => $this->getUser()]);
+        
         if (!$checkArticle)
         {
             return $this->redirectToRoute('app_article_index');
@@ -74,17 +92,20 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $article->setAuthor($this->getUser());
-
-            if($filesystem->exists('image_directory' . '/' . $article->getImage()))
-            {
-                $filesystem->remove('image_directory' . '/' . $article->getImage());
-            }
-
             $registerImage->setForm($form);
             $fileName = $registerImage->saveImage();
 
-            $article->setImage($fileName);
+            if(!empty($fileName))
+            {
+                if($filesystem->exists('image_directory' . '/' . $article->getImage()))
+                {
+                    $filesystem->remove('image_directory' . '/' . $article->getImage());
+                }
+                $article->setImage($fileName);
+            }
+           
             $articleRepository->save($article, true);
 
             return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
@@ -97,14 +118,16 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/admin/{id}', name: 'app_article_delete', methods: ['POST'])]
-    public function delete(Request $request, Article $article, ArticleRepository $articleRepository, Filesystem $filesystem): Response
+    public function delete(Request $request, Article $article, ArticleRepository $articleRepository, Filesystem $filesystem): Response|JsonResponse
     {
-        $checkArticle = $articleRepository->findBy(['author' => $this->getUser()]);
+        $checkArticle = $articleRepository->findOneBy(['author' => $this->getUser()]);
         
         if (!$checkArticle)
         {
             return $this->redirectToRoute('app_article_index');
         }
+
+        $articleId = $checkArticle->getId();
 
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
 
@@ -115,6 +138,12 @@ class ArticleController extends AbstractController
             $articleRepository->remove($article, true);
         }
 
+        if($request->isXmlHttpRequest())
+        {
+            return $this->json($articleId);
+        }
         return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
     }
+
+   
 }

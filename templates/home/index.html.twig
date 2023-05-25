@@ -11,9 +11,19 @@
     <div class="col-sm-6">
         <div class="card">
         <div class="card-body">
-            <h5 class="card-title">{{article.title}}</h5>
+            <h5 class="card-title text-center">{{article.title}}</h5>
+            <div class="text-center">
+                <img class="img-fluid img-thumbnail" src="{{  asset('image_directory/' ~ article.image ~ '')}}">
+            </div>
             <p class="card-text">{{article.description}}</p>
             <p>Créé le : {{article.createdAt|date("m/d/Y")}}</p>
+            <p>Catégorie :</p>
+            {% for category in article.category %}
+
+                <p class="badge bg-primary">{{category.label}}</p>
+
+            {% endfor %}
+            <br>
             <a href="{{path('app_article_show', {'id': article.id}) }}" class="btn btn-primary">Lire</a>
         </div>
         </div>
