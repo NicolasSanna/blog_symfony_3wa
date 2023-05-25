@@ -137,6 +137,7 @@ class Article
             $this->category->add($category);
         }
 
+
         return $this;
     }
 

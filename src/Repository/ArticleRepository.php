@@ -41,6 +41,18 @@ class ArticleRepository extends ServiceEntityRepository
         }
     }
 
+   public function findByAuthor(User $user, Article $article)
+   {
+       return $this->createQueryBuilder('a')
+            ->where('a.id = :id')
+            ->andWhere('a.author = :user')
+            ->setParameter('user', $user)
+            ->setParameter('id', $article->getId())
+            ->getQuery()
+            ->getOneOrNullResult()
+       ;
+   }
+
    /**
     * @return Article[] Returns an array of Article objects
     */

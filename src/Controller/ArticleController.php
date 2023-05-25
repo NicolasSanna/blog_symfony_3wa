@@ -28,7 +28,7 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/new', name: 'app_article_new', methods: ['GET', 'POST'])]
+    #[Route('/admin/new', name: 'app_article_new', methods: ['POST', 'GET'])]
     public function new(Request $request, ArticleRepository $articleRepository, RegisterImage $registerImage): Response
     {
         $article = new Article();
@@ -39,10 +39,14 @@ class ArticleController extends AbstractController
 
             $article->setAuthor($this->getUser());
 
-            $registerImage->setForm($form);
-            $fileName = $registerImage->saveImage();
-
-            $article->setImage($fileName);
+            if ($form->get('image')->getData() != null)
+            {   
+                $registerImage->setForm($form);
+                $fileName = $registerImage->saveImage();
+    
+                $article->setImage($fileName);
+            }
+         
             $article->setCreatedAt(new DateTimeImmutable());
             
             $articleRepository->save($article, true);
@@ -81,12 +85,16 @@ class ArticleController extends AbstractController
     #[Route('/admin/{id}/edit', name: 'app_article_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Article $article, ArticleRepository $articleRepository, RegisterImage $registerImage, Filesystem $filesystem): Response
     {
-        $checkArticle = $articleRepository->findOneBy(['author' => $this->getUser()]);
+        
+        $checkArticle = $articleRepository->findByAuthor($this->getUser(), $article);
         
         if (!$checkArticle)
         {
+            $this->addFlash('error', 'Vous ne pouvez pas modifier l\'article d\'un autre utilisateur');
             return $this->redirectToRoute('app_article_index');
         }
+
+        $image = $checkArticle->getImage();
 
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
@@ -94,16 +102,21 @@ class ArticleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $article->setAuthor($this->getUser());
-            $registerImage->setForm($form);
-            $fileName = $registerImage->saveImage();
 
-            if(!empty($fileName))
-            {
-                if($filesystem->exists('image_directory' . '/' . $article->getImage()))
+            if ($form->get('image')->getData() != null) {
+
+                $registerImage->setForm($form);
+                $fileName = $registerImage->saveImage();
+                if($filesystem->exists('image_directory' . '/' . $image))
                 {
-                    $filesystem->remove('image_directory' . '/' . $article->getImage());
+                    $filesystem->remove('image_directory' . '/' . $image);
                 }
                 $article->setImage($fileName);
+            }
+            else
+            {
+   
+                $article->setImage($image);
             }
            
             $articleRepository->save($article, true);

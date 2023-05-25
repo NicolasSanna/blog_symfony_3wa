@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use \DateTimeImmutable;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 
 class ArticleCrudController extends AbstractCrudController
 {
@@ -40,8 +41,9 @@ class ArticleCrudController extends AbstractCrudController
             TextField::new('title')->setLabel('Titre'),
             TextField::new('description')->setLabel('Description'),
             TextEditorField::new('content')->setLabel('Contenu'),
-            AssociationField::new('category')->setLabel('Nombre de catégories'),
+            AssociationField::new('category')->setLabel('Catégories'),
             ImageField::new('image')->setUploadDir('public/image_directory')->setBasePath('image_directory'),
+            DateTimeField::new("createdAt")->setLabel('Créé le')
         ];
     }
 }

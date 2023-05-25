@@ -57,7 +57,7 @@ class ArticleType extends AbstractType
                 'label' => 'Contenu'
             ])
             ->add('image', FileType::class, [
-                'required' => true,
+                'required' => false,
                 'constraints' => [
                     new File([
                         'maxSize' => '300k',
