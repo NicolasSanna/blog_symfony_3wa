@@ -3,20 +3,21 @@
 {% block title %}Catégorie{% endblock %}
 
 {% block body %}
+
     <h1>Catégorie {{category.label}}</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ category.id }}</td>
-            </tr>
-            <tr>
-                <th>Label</th>
-                <td>{{ category.label }}</td>
-            </tr>
-        </tbody>
-    </table>
+    {% for article in category.articles %}
+
+        <div class="card">
+            <h3>{{article.title}}</h3>
+            <p>{{article.description}}</p>
+            <p>Par {{article.author.firstname}} {{article.author.lastname}}</p>
+            <a href="{{ path('app_article_show', {'id': article.id}) }}">Lire</a>
+        </div>
+
+    {% endfor %}
+
+    <br>
 
     <a href="{{ path('app_category_index') }}">Revenir à la liste</a>
 

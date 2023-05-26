@@ -17,6 +17,7 @@
             </div>
             <p class="card-text">{{article.description}}</p>
             <p>Créé le : {{article.createdAt|date("m/d/Y")}}</p>
+            <p>Par {{article.author.firstname}} {{article.author.lastname}}</p>
             <p>Catégorie :</p>
             {% for category in article.category %}
 

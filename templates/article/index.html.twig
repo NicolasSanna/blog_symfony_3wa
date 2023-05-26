@@ -12,21 +12,21 @@
                 <th>Titre</th>
                 <th>Description</th>
                 <th>Créé le</th>
-                <th>actions</th>
+                <th class="text-center">actions</th>
             </tr>
         </thead>
         <tbody>
-        {% for article in articles %}
+        {% for article in pagination %}
             <tr id="article-{{ article.id }}">
                 <td>{{ article.id }}</td>
                 <td>{{ article.title }}</td>
                 <td>{{ article.description }}</td>
                 <td>{{ article.createdAt ? article.createdAt|date('d/m/Y') : '' }}</td>
-                <td>
-                    <a class="btn btn-primary" href="{{ path('app_article_show', {'id': article.id}) }}">Voir</a>
+                <td class="d-flex text-center justify-content-center">
+                    <a class="btn btn-primary ms-2 me-2" href="{{ path('app_article_show', {'id': article.id}) }}">Voir</a>
 
                     {% if app.user %}
-                        <a class="btn btn-warning" href="{{ path('app_article_edit', {'id': article.id}) }}">Modifier</a>
+                        <a class="btn btn-warning ms-2 me-2" href="{{ path('app_article_edit', {'id': article.id}) }}">Modifier</a>
                         {{ include('article/_delete_form.html.twig') }}
                     {% endif %}
 
@@ -37,8 +37,10 @@
                 <td colspan="7">Pas d'articles</td>
             </tr>
         {% endfor %}
+       
         </tbody>
     </table>
+     {{knp_pagination_render(pagination)}}
 
     {% if app.user %}
 

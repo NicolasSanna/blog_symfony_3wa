@@ -16,15 +16,19 @@ use Symfony\Component\Filesystem\Filesystem;
 use App\Form\CommentType;
 use App\Repository\CommentRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/article')]
 class ArticleController extends AbstractController
 {
     #[Route('/', name: 'app_article_index', methods: ['GET'])]
-    public function index(ArticleRepository $articleRepository): Response
+    public function index(ArticleRepository $articleRepository, PaginatorInterface $paginatorInterface, Request $request): Response
     {
+        $articles = $articleRepository->findByAuthorOrderByTitle($this->getUser());
+
+        $pagination = $paginatorInterface->paginate($articles, $request->query->get('page', 1), 5);
         return $this->render('article/index.html.twig', [
-            'articles' => $articleRepository->findByAuthorOrderByTitle($this->getUser()),
+            'pagination' => $pagination
         ]);
     }
 
@@ -107,16 +111,20 @@ class ArticleController extends AbstractController
 
                 $registerImage->setForm($form);
                 $fileName = $registerImage->saveImage();
+
                 if($filesystem->exists('image_directory' . '/' . $image))
                 {
                     $filesystem->remove('image_directory' . '/' . $image);
                 }
+                
                 $article->setImage($fileName);
             }
             else
             {
-   
-                $article->setImage($image);
+                if($image)
+                {
+                    $article->setImage($image);
+                }
             }
            
             $articleRepository->save($article, true);
@@ -133,10 +141,11 @@ class ArticleController extends AbstractController
     #[Route('/admin/{id}', name: 'app_article_delete', methods: ['POST'])]
     public function delete(Request $request, Article $article, ArticleRepository $articleRepository, Filesystem $filesystem): Response|JsonResponse
     {
-        $checkArticle = $articleRepository->findOneBy(['author' => $this->getUser()]);
+        $checkArticle = $articleRepository->findByAuthor($this->getUser(), $article);
         
         if (!$checkArticle)
         {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer l\'article d\'un autre utilisateur');
             return $this->redirectToRoute('app_article_index');
         }
 

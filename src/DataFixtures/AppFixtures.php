@@ -31,6 +31,9 @@ class AppFixtures extends Fixture
         $categoryTwo = new Category();
         $categoryTwo->setLabel('Philosophie');
 
+        $categoryThree = new Category();
+        $categoryThree->setLabel('Littérature');
+
         $article = new Article();
         $article    ->setTitle('Histoire de la Rome Antique')
                     ->setDescription('Histoire de Jules César')
@@ -53,6 +56,7 @@ class AppFixtures extends Fixture
         $manager->persist($user);
         $manager->persist($categoryOne);
         $manager->persist($categoryTwo);
+        $manager->persist($categoryThree);
         $manager->persist($article);
 
         $manager->persist($comment);
