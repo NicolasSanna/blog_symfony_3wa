@@ -8,10 +8,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
-
 use App\Entity\Category;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use App\Entity\Article;
+
 
 class DashboardController extends AbstractDashboardController
 {
@@ -50,6 +50,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linktoRoute('Retour sur le site', 'fas fa-home', 'app_home');
+
         yield MenuItem::linkToCrud('Articles', 'fas fa-categories', Article::class)
         ->setController(ArticleCrudController::class)
         ->setPermission('ROLE_ADMIN')
@@ -57,6 +58,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Catégories', 'fas fa-categories', Category::class)
         ->setPermission('ROLE_ADMIN');
+        
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-categories', User::class)
         ->setPermission('ROLE_ADMIN');
     }

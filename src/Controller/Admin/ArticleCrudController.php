@@ -41,6 +41,8 @@ class ArticleCrudController extends AbstractCrudController
             TextField::new('title')->setLabel('Titre'),
             TextField::new('description')->setLabel('Description'),
             TextEditorField::new('content')->setLabel('Contenu'),
+            TextField::new('author.firstname')->setLabel('Prénom')->hideOnForm(),
+            TextField::new('author.lastname')->setLabel('Nom')->hideOnForm(),
             AssociationField::new('category')->setLabel('Catégories'),
             ImageField::new('image')->setUploadDir('public/image_directory')->setBasePath('image_directory'),
             DateTimeField::new("createdAt")->setLabel('Créé le')

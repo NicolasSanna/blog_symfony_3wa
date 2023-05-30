@@ -6,7 +6,6 @@ use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
-use Doctrine\ORM\Query\Expr;
 
 /**
  * @extends ServiceEntityRepository<Article>
@@ -40,8 +39,11 @@ class ArticleRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
-   public function findByAuthor(User $user, Article $article)
+    
+    /**
+     * @return Article
+     */
+   public function findByAuthor(User $user, Article $article): Article|null
    {
        return $this->createQueryBuilder('a')
             ->where('a.id = :id')
@@ -66,6 +68,25 @@ class ArticleRepository extends ServiceEntityRepository
            ->getResult()
        ;
    }
+
+    /**
+    * Moteur de recherche
+    */
+    public function searchArticles(string $searchTerm): array
+    {
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+
+            '   SELECT a
+                FROM App\Entity\Article a
+                WHERE a.title LIKE :searchTerm
+                OR a.content LIKE :searchTerm'
+        )
+        ->setParameter('searchTerm', '%'.$searchTerm.'%');
+
+        return $query->getResult();
+    }
 
 //    public function findOneBySomeField($value): ?Article
 //    {

@@ -40,7 +40,6 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $article->setAuthor($this->getUser());
 
             if ($form->get('image')->getData() != null)
@@ -106,6 +105,8 @@ class ArticleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $article->setAuthor($this->getUser());
+
+
 
             if ($form->get('image')->getData() != null) {
 
