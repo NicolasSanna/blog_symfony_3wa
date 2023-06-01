@@ -23,6 +23,7 @@ class ArticleCrudController extends AbstractCrudController
     {
         return $crud
             ->setEntityPermission('ROLE_ADMIN')
+            ->setPaginatorPageSize(2)
         ;
     }
 
