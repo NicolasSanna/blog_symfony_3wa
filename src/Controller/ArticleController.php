@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use \DateTimeImmutable;
 use Symfony\Component\Filesystem\Filesystem;
 use App\Form\CommentType;
+use App\Repository\CategoryRepository;
 use App\Repository\CommentRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Knp\Component\Pager\PaginatorInterface;
@@ -33,7 +34,7 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/admin/new', name: 'app_article_new', methods: ['POST', 'GET'])]
-    public function new(Request $request, ArticleRepository $articleRepository, RegisterImage $registerImage): Response
+    public function new(Request $request, ArticleRepository $articleRepository, RegisterImage $registerImage, CategoryRepository $categoryRepository): Response
     {
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
@@ -48,6 +49,16 @@ class ArticleController extends AbstractController
                 $fileName = $registerImage->saveImage();
     
                 $article->setImage($fileName);
+            }
+
+            $categories = $form->get('category')->getData();
+
+            foreach ($categories as $category)
+            {
+                $selectedCategory = $categoryRepository->find(['id' => $category]);
+
+                $article->addCategory($selectedCategory);
+
             }
          
             $article->setCreatedAt(new DateTimeImmutable());
